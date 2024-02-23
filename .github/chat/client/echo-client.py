@@ -13,8 +13,8 @@ def send_data_to_server(host, port, message):
 
 if __name__ == "__main__":
     # Set the host and port for the echo server
-    server_host = "127.0.0.1"  # Change this to the IP address of your server
-    server_port = 12345
+    server_host = "10.10.14.230"  # Change this to the IP address of your server
+    server_port = 61000
 
     # Message to be echoed
     message = "Hello, Echo Server!"

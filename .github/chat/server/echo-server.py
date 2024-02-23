@@ -1,7 +1,7 @@
 import socket
 
-HOST = "10.10.0.219"  # Standard loopback interface address (localhost)
-PORT = 65433  # Port to listen on (non-privileged ports are > 1023)
+HOST = "10.10.14.230"  # Standard loopback interface address (localhost)
+PORT = 60000  # Port to listen on (non-privileged ports are > 1023)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
