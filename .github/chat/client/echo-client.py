@@ -20,7 +20,6 @@ if __name__ == "__main__":
     # Message to be echoed
     message = " "
     
-   
     while True:
         send_data_to_server(server_host, server_port, message)
         if message == "exit":
