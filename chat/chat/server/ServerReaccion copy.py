@@ -5,7 +5,6 @@ import subprocess
 import time
 import threading
 
-#QUE NO SALGAN LOS INPUTS Y SOLO MUESTRE LO ESCRITO
 #PONER COLORINES EN USUARIO Y SERVIDOR
 #POner un mensaje de esribe aqui cada vez que uno vaya a escribir
 
@@ -54,6 +53,13 @@ def comp_nombre(nom, conna):
 def get_msg(conna):
     msg = conna.recv(20480).decode()
     return msg
+
+#def send_msg(msg, conn):
+#  try:
+#      conn.send(msg.encode())
+# except ConnectionResetError as e:
+    #    print(f"ConnectionResetError: {e}")
+    #    conn.close()
 
 server = "0.0.0.0"
 port = 65433 
