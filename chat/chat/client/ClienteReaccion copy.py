@@ -26,7 +26,7 @@ def get_msg():
             print(msg)
         
 
-server = "10.10.10.223"
+server = "10.10.14.237"
 port = 65433
 
 

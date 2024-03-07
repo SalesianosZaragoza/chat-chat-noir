@@ -5,6 +5,9 @@ import subprocess
 import time
 import threading
 
+#QUE NO SALGAN LOS INPUTS Y SOLO MUESTRE LO ESCRITO
+#PONER COLORINES EN USUARIO Y SERVIDOR
+#POner un mensaje de esribe aqui cada vez que uno vaya a escribir
 
 #Create a TCP/IP Socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
