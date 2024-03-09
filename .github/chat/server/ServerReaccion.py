@@ -13,6 +13,7 @@ names = []
 
 def on_new_client(clientsocket,addr):
     username = obten_nombre(clientsocket)
+    send_log(f"{username} se ha conectado al chat.")  # Mensaje de registro
     while True:
         msg = get_msg(clientsocket)
         charla = username + ' : '+ msg
@@ -30,9 +31,11 @@ def on_new_client(clientsocket,addr):
 
 def send_msg(msg, conna):
     conna.send(msg.encode())
+
 def send_log(msg):
     for c in clients:
         send_msg(msg, c)
+
 def obten_nombre(conna):
     dataa = "Introduzca su nombre: "
     send_msg(dataa, conna)
@@ -47,10 +50,21 @@ def comp_nombre(nom, conna):
             return obten_nombre(conna)
     return nom
 
-
 def get_msg(conna):
     msg = conna.recv(20480).decode()
     return msg
+
+#def send_private_msg(sender, recipient, private_msg):
+ #   found = False
+  #  for conn, name in names.items():
+   #     if name == recipient:
+    #       send_msg(f'(Private) {sender} : {private_msg}', conn)
+    #       found = True
+    #       break
+    #   if not found:
+#         send_msg(f'El destinatario "{recipient}" no está conectado o no existe.', names[sender])
+
+
 
 server = "0.0.0.0"
 port = 65433 
