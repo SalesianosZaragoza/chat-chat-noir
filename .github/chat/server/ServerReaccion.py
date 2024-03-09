@@ -64,8 +64,6 @@ def get_msg(conna):
     #   if not found:
 #         send_msg(f'El destinatario "{recipient}" no está conectado o no existe.', names[sender])
 
-
-
 server = "0.0.0.0"
 port = 65433 
 all_threads = []
