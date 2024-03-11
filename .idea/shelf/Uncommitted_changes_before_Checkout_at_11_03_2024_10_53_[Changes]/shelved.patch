@@ -1,0 +1,30 @@
+Index: .github/chat/server/ServerReaccion.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import socket\r\nimport sys\r\nimport os\r\nimport subprocess\r\nimport time\r\nimport threading\r\n\r\n\r\n#Create a TCP/IP Socket\r\nsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\r\nclients = []\r\nnames = []\r\n\r\ndef on_new_client(clientsocket, addr):\r\n    username = obten_nombre(clientsocket)\r\n    send_log(f\"{username} se ha conectado al chat.\")  # Mensaje de registro\r\n    while True:\r\n        msg = get_msg(clientsocket)\r\n        # Verifica si el mensaje es un susurro\r\n        if msg.startswith(\"msg \"):\r\n            # Separa el mensaje en el nombre de usuario y el contenido del susurro\r\n            parts = msg.split(\" \", 2)\r\n            if len(parts) >= 3:\r\n                recipient_name = parts[1]\r\n                whisper_msg = parts[2]\r\n\r\n                # Encuentra el destinatario en la lista de nombres\r\n                found_recipient = False\r\n                for index, name in enumerate(names):\r\n                    if name == recipient_name:\r\n                        send_msg(f'(Susurro de {username}) : {whisper_msg}', clients[index])\r\n                        found_recipient = True\r\n                        break\r\n\r\n                # Si el destinatario no se encuentra, notifica al remitente\r\n                if not found_recipient:\r\n                    send_msg(f'El destinatario \"{recipient_name}\" no está conectado o no existe.', clientsocket)\r\n        else:\r\n            charla = username + ' : '+ msg\r\n            send_log(charla)\r\n            print(username, ' : ', msg)\r\n    clientsocket.close()\r\n\r\n##server = input(\"Enter server IP: \")\r\n##print(server)\r\n##\r\n##port = int(input(\"Enter port: \"))\r\n##print(port)\r\n\r\ndef send_msg(msg, conna):\r\n    conna.send(msg.encode())\r\n\r\ndef send_log(msg):\r\n    for c in clients:\r\n        send_msg(msg, c)\r\n\r\ndef obten_nombre(conna):\r\n    dataa = \"Introduzca su nombre: \"\r\n    send_msg(dataa, conna)\r\n    nombre = get_msg(conna)\r\n    nombre = comp_nombre(nombre, conna)\r\n    names.append(nombre)\r\n    return nombre\r\n\r\ndef comp_nombre(nom, conna):\r\n    for name in names:\r\n        if nom == name:\r\n            send_msg(\"Nombre ya seleccionado\\n\", conna)\r\n            return obten_nombre(conna)\r\n    return nom\r\n\r\ndef get_msg(conna):\r\n    msg = conna.recv(20480).decode()\r\n    return msg\r\n\r\ndef send_private_msg(sender, recipient, private_msg):\r\n    found = False\r\n    for conn, name in names.items():\r\n        if name == recipient:\r\n            send_msg(f'(Private) {sender} : {private_msg}', conn)\r\n            found = True\r\n            break\r\n        if not found:\r\n            send_msg(f'El destinatario \"{recipient}\" no está conectado o no existe.', names[sender])\r\n\r\nserver = \"0.0.0.0\"\r\nport = 65433 \r\nall_threads = []\r\n#Config\r\nsock.bind((server, port))\r\nprint(\"Bound to \" + server + \" on port \" + str(port) + \"\\n\")\r\n\r\nsock.listen(5)\r\nwhile True:\r\n    print('Waiting for a connection...') # inside the loop, not before it\r\n    conn, caddr = sock.accept()\r\n    print(f\"Connected to!\\n {caddr}\")\r\n    clients.append(conn)\r\n\r\n    t1 = threading.Thread(target=on_new_client, args=(conn,caddr))\r\n    t1.start()\r\n\r\n    all_threads.append(t1)\r\n    #while True:\r\n#        print(\"Waiting for a command...\")\r\n#        data = get_msg()\r\n#        if data == \"hola\":\r\n#            print(\"Me ha dicho hola\")\r\n#            send_msg(\"Gracias por saludar \" + username)\r\n#        else:\r\n#            send_msg(\" \")\r\n\r\n\r\n        #Exit\r\n#        if data == \"exit\":\r\n#            print(\"\\nConnection closed\")\r\n#            conn.close()\r\n#            break # go back to the outer accept loop to get the next connection\r\n\r\n #       print(\"Received '\" + data + \"'\")\r\n  #      # ... etc. ...\r\n   #     print()
+===================================================================
+diff --git a/.github/chat/server/ServerReaccion.py b/.github/chat/server/ServerReaccion.py
+--- a/.github/chat/server/ServerReaccion.py	
++++ b/.github/chat/server/ServerReaccion.py	
+@@ -18,21 +18,16 @@
+         msg = get_msg(clientsocket)
+         # Verifica si el mensaje es un susurro
+         if msg.startswith("msg "):
+-            # Separa el mensaje en el nombre de usuario y el contenido del susurro
+             parts = msg.split(" ", 2)
+             if len(parts) >= 3:
+                 recipient_name = parts[1]
+                 whisper_msg = parts[2]
+-
+-                # Encuentra el destinatario en la lista de nombres
+                 found_recipient = False
+                 for index, name in enumerate(names):
+                     if name == recipient_name:
+                         send_msg(f'(Susurro de {username}) : {whisper_msg}', clients[index])
+                         found_recipient = True
+                         break
+-
+-                # Si el destinatario no se encuentra, notifica al remitente
+                 if not found_recipient:
+                     send_msg(f'El destinatario "{recipient_name}" no está conectado o no existe.', clientsocket)
+         else:

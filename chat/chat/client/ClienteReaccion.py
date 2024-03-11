@@ -4,7 +4,6 @@ import os
 import time
 import threading
 
-
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -27,7 +26,7 @@ def get_msg():
             print(msg)
         
 
-server = "10.10.14.237"
+server = "192.168.116.1"
 port = 65433
 
 
@@ -47,5 +46,6 @@ while True:
     #Response
     #amnt_exp = len(msg)
     #data = sock.recv(2048)
+   
 
     
