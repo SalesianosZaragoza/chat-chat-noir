@@ -10,14 +10,17 @@ import threading
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clients = []
 names = []
+rooms = ["Sala 1"]
+Chats = [[]]
 
 def on_new_client(clientsocket, addr):
     username = obten_nombre(clientsocket)
     send_log(f"{username} se ha conectado al chat.")  # Mensaje de registro
     while True:
-        msg = get_msg(clientsocket)
-        # Verifica si el mensaje es un susurro
-        if msg.startswith("msg "):
+        msg = get_msg(clientsocket, username)
+        if not msg:
+            break
+        if msg.startswith("/msg "):
             # Separa el mensaje en el nombre de usuario y el contenido del susurro
             parts = msg.split(" ", 2)
             if len(parts) >= 3:
@@ -31,7 +34,6 @@ def on_new_client(clientsocket, addr):
                         send_msg(f'(Susurro de {username}) : {whisper_msg}', clients[index])
                         found_recipient = True
                         break
-
                 # Si el destinatario no se encuentra, notifica al remitente
                 if not found_recipient:
                     send_msg(f'El destinatario "{recipient_name}" no está conectado o no existe.', clientsocket)
@@ -39,7 +41,7 @@ def on_new_client(clientsocket, addr):
             charla = username + ' : '+ msg
             send_log(charla)
             print(username, ' : ', msg)
-    clientsocket.close()
+        clientsocket.close()
 
 ##server = input("Enter server IP: ")
 ##print(server)
@@ -57,7 +59,7 @@ def send_log(msg):
 def obten_nombre(conna):
     dataa = "Introduzca su nombre: "
     send_msg(dataa, conna)
-    nombre = get_msg(conna)
+    nombre = get_msg(conna, "")
     nombre = comp_nombre(nombre, conna)
     names.append(nombre)
     return nombre
@@ -69,9 +71,28 @@ def comp_nombre(nom, conna):
             return obten_nombre(conna)
     return nom
 
-def get_msg(conna):
+def get_msg(conna, name):
     msg = conna.recv(20480).decode()
+    if msg == "/LIST":
+        ListChats(conna)
+    elif msg.find("/NEW") != -1:
+        AddChat(msg[msg.find("/NEW") + 4:])
+    elif msg == "/EXIT":
+        clients.remove(conna)
+        names.remove(name)
+        conna.close()
+        sys.exit()
     return msg
+
+def ListChats(conna):
+    data = ""
+    for rom in rooms:
+        data = data + rom
+    send_msg(data, conna)
+
+def AddChat(b):
+    rooms.append(" " + b)
+    Chats.append([])
 
 def send_private_msg(sender, recipient, private_msg):
     found = False

@@ -17,7 +17,6 @@ def on_new_client(clientsocket, addr):
     send_log(f"{username} se ha conectado al chat.")  # Mensaje de registro
     while True:
         msg = get_msg(clientsocket)
-        # Verifica si el mensaje es un susurro
         if msg.startswith("msg "):
             parts = msg.split(" ", 2)
             if len(parts) >= 3:

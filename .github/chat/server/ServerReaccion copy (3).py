@@ -15,12 +15,24 @@ Chats = [[]]
 
 def on_new_client(clientsocket,addr):
         username = obten_nombre(clientsocket)
-        send_log(f"{username} se ha conectado al chat.", conn) # Mensaje de registro
+        send_log(f"{username} se ha conectado al chat.", conn)  # Mensaje de registro
         while True:
             msg, mostrar = get_msg(clientsocket, username)
             if not msg:
                 break
-            charla = username + ' : ' + msg
+            charla = username + ' : '+ msg
+            if msg.startswith("/RENAME"):
+                mostrar = False
+                new_name = msg[len("/RENAME "):]
+                if new_name:
+                    if new_name not in names:
+                        names[names.index(username)] = new_name
+                        username = new_name
+                        send_msg(f"Tu nombre ha sido cambiado a: {new_name}\n", clientsocket)
+                    else:
+                        send_msg("Este nombre ya está en uso. Por favor, elige otro.\n", clientsocket)
+                else:
+                    send_msg("El nombre no puede estar vacío.Por favor, ingresa un nombre válido.\n", clientsocket)
             if(mostrar):
                 send_log(charla,clientsocket)
             #do some checks and if msg == someWeirdSignal: break:
@@ -45,6 +57,7 @@ def obten_nombre(conna):
     nombre, most = get_msg(conna, "a")
     nombre = comp_nombre(nombre, conna)
     names.append(nombre)
+    clients.append(conna)
     return nombre
 
 def comp_nombre(nom, conna):
@@ -75,26 +88,21 @@ def JoinChannel(name, conn):
         Chats[rooms.index(name)].append(conn)
         send_msg("Conectado a sala " + name, conn)
 
-def kick_user(kicker_name, target_name):
-    global clients, names, kicked_clients
-    if target_name in names:
-        index = names.index(target_name)
-        kicked_conn = clients[index]
-        kicked_name = names.pop(index)
-        clients.pop(index)
-        kicked_clients.append(kicked_conn)
-        send_log(f"{kicker_name} ha expulsado a {kicked_name} del chat.", conn)
-        send_msg("¡Has sido expulsado del chat!", kicked_conn)
-        send_log(f"{kicked_name} ha sido expulsado del chat por {kicker_name}.", conn)
-        kicked_conn.close()
-    else:
-        send_msg(f'No se pudo encontrar al usuario "{target_name}" en la sala.', clients[names.index(kicker_name)])
+def kick_user(target_name):
+    con = clients[names.index(target_name)]
+    for chat in Chats:
+        if con in chat:
+            chat.remove(con)
+            send_msg("Has sido pateado de la sala", con)
 
 def send_private_msg(sender, recipient, private_msg):
-    found = False
-    con = names.index(recipient)
-
-    send_msg(f"Mensaje privado de {sender}: {private_msg}", clients[con])
+    if recipient in names:    
+        con = names.index(recipient)
+        send_msg(sender + " whispers" + private_msg, clients[con])
+    else:
+        con = names.index(sender)
+        send_msg("No existe el usuario " + recipient, clients[con])
+    
 
 def get_msg(conna, name):
     mostrar = True
@@ -118,13 +126,13 @@ def get_msg(conna, name):
     elif msg.find("/KICK") != -1:
         mostrar = False
         target_name = msg[msg.find("/KICK") + 6:]
-        kick_user(name, target_name)
+        kick_user(target_name)
     elif msg.find("/MSG") != -1:
         mostrar = False
         target_name = msg[msg.find("/MSG") + 5:msg.find(" ", msg.find("/MSG") + 5)]
         private_msg = msg[msg.find(" ", msg.find("/MSG") + 5):]
         send_private_msg(name, target_name, private_msg)
-    return msg, mostrar
+    return msg, mostrar    
 
 server = "0.0.0.0"
 port = 65433 
@@ -143,7 +151,7 @@ while True:
     print('Waiting for a connection...') # inside the loop, not before it
     conn, caddr = sock.accept()
     print(f"Connected to!\n {caddr}")
-    clients.append(conn)
+    
 
     t1 = threading.Thread(target=on_new_client, args=(conn,caddr))
     t1.start()
