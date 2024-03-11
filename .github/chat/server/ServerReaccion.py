@@ -11,7 +11,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clients = []
 names = []
 
-def on_new_client(clientsocket,addr):
+def on_new_client(clientsocket, addr):
     username = obten_nombre(clientsocket)
     send_log(f"{username} se ha conectado al chat.")  # Mensaje de registro
     while True:
