@@ -16,11 +16,29 @@ def on_new_client(clientsocket,addr):
     send_log(f"{username} se ha conectado al chat.")  # Mensaje de registro
     while True:
         msg = get_msg(clientsocket)
-        charla = username + ' : '+ msg
-        send_log(charla)
-        #do some checks and if msg == someWeirdSignal: break:
-        print(username, ' : ', msg)
-        #Maybe some code to compute the last digit of PI, play game or anything else can go here and when you are done.
+        # Verifica si el mensaje es un susurro
+        if msg.startswith("msg "):
+            # Separa el mensaje en el nombre de usuario y el contenido del susurro
+            parts = msg.split(" ", 2)
+            if len(parts) >= 3:
+                recipient_name = parts[1]
+                whisper_msg = parts[2]
+
+                # Encuentra el destinatario en la lista de nombres
+                found_recipient = False
+                for index, name in enumerate(names):
+                    if name == recipient_name:
+                        send_msg(f'(Susurro de {username}) : {whisper_msg}', clients[index])
+                        found_recipient = True
+                        break
+
+                # Si el destinatario no se encuentra, notifica al remitente
+                if not found_recipient:
+                    send_msg(f'El destinatario "{recipient_name}" no está conectado o no existe.', clientsocket)
+        else:
+            charla = username + ' : '+ msg
+            send_log(charla)
+            print(username, ' : ', msg)
     clientsocket.close()
 
 ##server = input("Enter server IP: ")
@@ -43,6 +61,7 @@ def obten_nombre(conna):
     nombre = comp_nombre(nombre, conna)
     names.append(nombre)
     return nombre
+
 def comp_nombre(nom, conna):
     for name in names:
         if nom == name:
@@ -54,15 +73,15 @@ def get_msg(conna):
     msg = conna.recv(20480).decode()
     return msg
 
-#def send_private_msg(sender, recipient, private_msg):
- #   found = False
-  #  for conn, name in names.items():
-   #     if name == recipient:
-    #       send_msg(f'(Private) {sender} : {private_msg}', conn)
-    #       found = True
-    #       break
-    #   if not found:
-#         send_msg(f'El destinatario "{recipient}" no está conectado o no existe.', names[sender])
+def send_private_msg(sender, recipient, private_msg):
+    found = False
+    for conn, name in names.items():
+        if name == recipient:
+            send_msg(f'(Private) {sender} : {private_msg}', conn)
+            found = True
+            break
+        if not found:
+            send_msg(f'El destinatario "{recipient}" no está conectado o no existe.', names[sender])
 
 server = "0.0.0.0"
 port = 65433 
